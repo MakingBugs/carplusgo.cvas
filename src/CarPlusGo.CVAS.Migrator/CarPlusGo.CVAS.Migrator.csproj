@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
+    <AssemblyName>CarPlusGo.CVAS.Migrator</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>CarPlusGo.CVAS.Migrator</PackageId>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="appsettings.json;log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\abp\Abp.Castle.Log4Net\Abp.Castle.Log4Net.csproj" />
+    <ProjectReference Include="..\CarPlusGo.CVAS.Core\CarPlusGo.CVAS.Core.csproj" />
+    <ProjectReference Include="..\CarPlusGo.CVAS.EntityFrameworkCore\CarPlusGo.CVAS.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+</Project>

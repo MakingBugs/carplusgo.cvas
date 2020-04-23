@@ -1,0 +1,89 @@
+---
+kind: pipeline
+type: kubernetes
+name: carplusgo.cvas
+
+steps:
+- name: docker-dev
+  image: plugins/docker
+  settings:
+    username: 
+      from_secret: docker_username
+    password: 
+      from_secret: docker_password
+    custom_dns: 
+      - 4.2.2.1
+      - 8.8.8.8
+    repo: 192.168.21.41/dev/carplusgo.cvas
+    tags: latest
+    dockerfile: src/CarPlusGo.CVAS.Web.Host/Dockerfile
+    registry: 192.168.21.41
+    insecure: true
+    build_args:
+      - ASPNETCORE_ENVIRONMENT=Staging
+  when:
+    event: push
+    branch: dev
+
+- name: docker
+  image: plugins/docker
+  settings:
+    username: 
+      from_secret: docker_username
+    password: 
+      from_secret: docker_password
+    custom_dns: 
+      - 4.2.2.1
+      - 8.8.8.8
+    repo: 192.168.21.41/master/carplusgo.cvas
+    tags: latest
+    dockerfile: src/CarPlusGo.CVAS.Web.Host/Dockerfile
+    registry: 192.168.21.41
+    insecure: true
+  when:
+    event: push
+    branch: master
+
+- name: deploy-dev
+  image: quay.io/ipedrazas/drone-helm
+  environment:
+    STABLE_REPO_URL: https://mirror.azure.cn/kubernetes/charts/
+    SERVICE_ACCOUNT: tiller
+    API_SERVER:
+      from_secret: api_server
+    KUBERNETES_TOKEN:
+      from_secret: kubernetes_token
+    KUBERNETES_CERTIFICATE:
+      from_secret: kubernetes_ca
+  settings:
+    client-only: true
+    wait: true
+    recreate_pods: true
+    chart: ./helm-dev
+    release: api-dev
+    values_files: ["./helm-dev/values.yaml"]
+  when:
+    event: push
+    branch: dev
+
+- name: deploy
+  image: quay.io/ipedrazas/drone-helm
+  environment:
+    STABLE_REPO_URL: https://mirror.azure.cn/kubernetes/charts/
+    SERVICE_ACCOUNT: tiller
+    API_SERVER:
+      from_secret: api_server
+    KUBERNETES_TOKEN:
+      from_secret: kubernetes_token
+    KUBERNETES_CERTIFICATE:
+      from_secret: kubernetes_ca
+  settings:
+    client-only: true
+    wait: true
+    recreate_pods: true
+    chart: ./helm
+    release: api-master
+    values_files: ["./helm/values.yaml"]
+  when:
+    event: push
+    branch: master
